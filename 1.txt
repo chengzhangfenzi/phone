@@ -1,0 +1,422 @@
+ #include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+#define ERROR 0
+#define OK 1
+
+//定义
+typedef struct tong
+{
+	char name[20];
+	char sex;
+	int callnum;
+	char beizhu[100];
+	struct tong *next;
+}Tong;
+typedef struct tong *Link;
+
+//创建空链表
+Link CreatEmpty()
+{
+	Link  p;
+	if((p=(Link)malloc(sizeof(Tong)))==NULL )
+	{
+		printf("申请空间失败\n");
+		exit(0);
+	}
+	p->next=NULL;
+	return p;
+}
+
+//创建实链表
+Link Creat(Link a)
+{
+	Link p;
+	int i,flag=1;
+	p=(Link)malloc(sizeof(Tong));
+	
+	getchar();
+	printf("请输入姓名：\n");
+	gets(p->name);
+
+	for(i=0;flag<2;i++)
+	{
+		printf("请输入性别（男M 女F）：\n");
+		scanf("%c",&p->sex);
+		getchar();
+		if( p->sex!='M' && p->sex!='F' )
+			printf("请按规定输入！\n");
+		if( p->sex=='M' || p->sex=='F' )
+			flag=3;
+	}
+
+	printf("请输入电话号码\n");
+	scanf("%d",&p->callnum);
+	 
+	getchar();
+	printf("请输入备注\n");
+	gets(p->beizhu);
+
+	p->next=a->next;//头插法
+	a->next=p;
+
+	return a;
+}
+
+//输出全部信息
+int Printall(Link a)
+{
+	printf("正在输出所有联系人...\n");
+	int count=0;
+	Link p=a->next;
+	if(p==NULL)
+	{
+		printf("没有任何联系人。\n");
+		return OK;
+	}
+	while(p)
+	{
+		p=p->next;
+		count++;
+	}
+	printf("共有%d个联系人\n",count);
+	p=a->next;
+	printf("-----------------------\n");
+	while(p)
+	{
+		printf("姓名：%s\n",p->name);
+		printf("性别（男M 女F）：%c\n",p->sex);
+		printf("电话号码：%d\n",p->callnum);
+		printf("备注：%s\n",p->beizhu);
+		p=p->next;
+		printf("-----------------------\n");
+	
+	}
+	return OK;
+}
+
+//输出单个的信息
+int Printone(Link a)
+{
+	printf("---------------\n");
+	printf("姓名：%s\n",a->name);
+	printf("性别（男M 女F）：%c\n",a->sex);
+	printf("电话号码：%d\n",a->callnum);
+	printf("备注：%s\n",a->beizhu);
+	printf("---------------\n");
+	return OK;
+}
+
+//清空
+int Clear(Link a)
+{
+	printf("正在删除所有联系人...\n");
+
+	Link p,q;
+	p=a->next;
+	if(p==NULL)
+	{
+		printf("没有任何联系人。\n");
+		return OK;
+	}
+	while(p)
+	{
+		q=p->next;
+		free(p);
+		p=q;
+	}
+	a->next=NULL;
+	printf("已经成功删除所有联系人\n");
+	return OK;
+}
+
+//查找
+int Find(Link a)
+{
+	Link p;
+	p=a->next;
+	if(p==NULL)
+	{
+		printf("没有任何联系人。\n");
+		return OK;
+	}
+
+	int i,flag=1,callnum0,j;
+	char name0[20];
+	for(j=0;flag<2;j++)
+	{
+		printf("请选择：\n1 按姓名查找\n2 按电话号码查找\n0 返回上一级\n");
+		getchar();//取走垃圾字符回车
+		scanf("%d",&i);
+		if(i!=1 && i!=2 && i!=0)
+			printf("请按规定输入\n");
+		if(i==1 || i==2 || i==0)
+			flag=3;
+	}
+	if(i==1)
+	{
+		getchar();
+		printf("请输入姓名\n");
+		gets(name0);
+		for(j=0; strcmp(name0,p->name)!=0 ;j++)//字符串判等用strcmp
+		{
+			p=p->next; 
+			if(!p)
+			{
+				printf("没有此联系人,查找失败\n");
+				flag=2;
+				break;
+			}
+		}
+		if(flag==3)
+			Printone(p);	
+	}
+	else if(i==2)
+	{
+		printf("请输入电话号码\n");
+		scanf("%d",&callnum0);
+		for(j=0;callnum0!=p->callnum;j++)
+		{
+			p=p->next;
+			if(!p)
+			{
+				printf("没有此联系人，查找失败\n");
+				flag=2;
+				break;
+			}
+		}
+		if(flag==3)
+			Printone(p);
+	}	
+	else 
+		printf("正在返回上一级...\n");
+	return OK;	
+}
+
+//删除
+int Delete(Link a)
+{
+	Link p,q;
+	p=a->next;
+	if(p==NULL)
+	{
+		printf("没有任何联系人。\n");
+		return OK;
+	}
+
+	int i,flag=1,callnum0,j;
+	char name0[20];
+	for(j=0;flag<2;j++)
+	{
+		printf("请选择：\n1 按姓名删除\n2 按电话号码删除\n0 返回上一级\n");
+		getchar();//取走垃圾字符回车
+		scanf("%d",&i);
+		if(i!=1 && i!=2 && i!=0 )
+			printf("请按规定输入\n");
+		if(i==1 || i==2|| i==0)
+			flag=3;
+	}
+	if(i==1)
+	{
+		printf("请输入姓名\n");
+		scanf("%s",name0);
+		for(j=0; strcmp(name0,p->next->name)!=0 ;j++)//找到该联系人节点的前一个节点
+		{
+			p=p->next;
+			if(!p->next)
+			{
+				printf("没有此联系人\n");
+				flag=2;
+				break;
+			}
+		}
+		if(flag==3)
+		{
+			q=p->next;
+			p->next=q->next;
+			free(q);
+			printf("已经成功删除\n");
+		}	
+	}
+	else if(i==2)
+	{
+		printf("请输入电话号码\n");
+		scanf("%d",&callnum0);
+		for(j=0;callnum0!=p->next->callnum;j++)//找到该联系人节点的前一个节点
+		{
+			p=p->next;
+			if(!p->next)
+			{
+				printf("没有此联系人\n");
+				flag=2;
+				break;
+			}
+		}
+		if(flag==3)
+		{
+			q=p->next;
+			p->next=q->next;
+			free(q);
+			printf("已经成功删除\n");
+		}	
+	
+	}
+	else
+		printf("正在返回上一级...\n");
+	return OK;
+}
+
+//按性别筛选
+int Choose(Link a)
+{
+	int count=0;
+	Link p;
+	p=a->next;
+	if(p==NULL)
+	{
+		printf("没有任何联系人。\n");
+		return OK;
+	}
+
+	int j,flag=1,i;
+	for(j=0;flag<2;j++)
+	{
+		printf("请选择：\n1 输出所有男性联系人\n2 输出所有女性联系人\n0 返回上一级\n");
+		getchar();//取走垃圾字符回车
+		scanf("%d",&i);
+		if(i!=1 && i!=2 && i!=0)
+			printf("请按规定输入\n");
+		if(i==1 || i==2|| i==0)
+			flag=3;
+	}
+	if(i==1)
+	{
+		for(j=0;p!=NULL;j++)
+		{
+			if(p->sex=='M')
+			{
+				Printone(p);
+				count++;
+				flag=2;
+			}
+			p=p->next;
+		}
+		printf("共有%d个男性联系人\n",count);
+		if(flag==3)
+			printf("没有男性联系人\n");
+	}
+	else if(i==2)
+	{
+		for(j=0;p!=NULL;j++)
+		{
+			if(p->sex=='F')
+			{
+				Printone(p);
+				count++;
+				flag=2;
+			}
+			p=p->next;
+		}
+		printf("共有%d个女性联系人\n",count);
+		if(flag==3)
+			printf("没有女性联系人\n");
+	}
+	else
+		printf("正在返回上一级...\n");
+	return OK;
+}
+
+int main()
+{
+	Link b,x,y,z,z1;
+	b=CreatEmpty();
+	x=(Link)malloc(sizeof(Tong));
+	y=(Link)malloc(sizeof(Tong));
+	z=(Link)malloc(sizeof(Tong));
+	z1=(Link)malloc(sizeof(Tong));
+	
+	strcpy( x->name,"chen");
+	x->sex='M';
+	x->callnum=111111;
+	strcpy( x->beizhu,"无");
+	x->next=b->next;
+	b->next=x;
+
+	strcpy( y->name,"zhu");
+	y->sex='F';
+	y->callnum=222222;
+	strcpy( y->beizhu,"ideal");
+	y->next=x->next;
+	x->next=y;
+
+	strcpy( z->name,"li");
+	z->sex='F';
+	z->callnum=333333;
+	strcpy( z->beizhu,"x");
+	z->next=y->next;
+	y->next=z;
+
+	strcpy( z1->name,"god");
+	z1->sex='M';
+	z1->callnum=444444;
+	strcpy( z1->beizhu,"god is god");//字符串赋值用strcpy
+	z1->next=z->next;
+	z->next=z1;
+
+	//初始化数据,手动确定指针指向 (即新增联系人) 
+	//结构体内部的指针不是该结构体的成员，不可直接调用
+
+	int t,flag1=1;
+	for(t=0;flag1<3;t++)
+	{
+		system("clear");//清屏
+		printf("\n---------欢迎使用通讯录----------\n");
+		printf("请输入以下对面命令前的数字\n");
+		printf("1 查看所有联系人\n");
+		printf("2 清空通讯录\n");
+		printf("3 新增联系人\n");
+		printf("4 查找联系人\n");
+		printf("5 删除联系人\n");
+		printf("6 按性别筛选联系人\n");
+		printf("0 退出\n");
+		printf("\n请输入命令前的数字，选择要执行的操作：\n");
+		int input,k;
+		flag1=1;//一定要重新置1
+		scanf("%d",&input);
+		switch(input)
+		{
+			case 1:
+				Printall(b);break;
+			case 2:
+				Clear(b);break;
+			case 3:
+				b=Creat(b);break;
+			case 4:
+				Find(b);break;
+			case 5:
+				Delete(b);break;
+			case 6:
+				Choose(b);break;
+			case 0:
+				flag1=4;break;
+			default:
+				printf("请按规定输入\n");
+		}
+		getchar();//在输入之前取走垃圾字符回车
+		for(k=0;flag1<2;k++)
+		{
+			printf("请按回车继续...\n");
+			//回车字符\n(即enter键)只能由getchar读取
+			if(getchar()==10)
+				flag1=2;
+		}
+	}	
+	if(flag1==4)
+	{
+		printf("欢迎下次使用！\n");
+		exit(0);
+	}		
+	return OK;
+}
+
